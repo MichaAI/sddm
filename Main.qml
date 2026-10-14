@@ -34,6 +34,8 @@ Item {
     readonly property string avatarModel: path(conf("avatarModel", ""))
     readonly property real modelSize: Number(conf("modelSize", 190))
     readonly property int spinMs: Number(conf("spinMs", 14000))
+    readonly property string avatarAnimation: conf("avatarAnimation", "")
+    readonly property real animationSpeed: Number(conf("animationSpeed", 1))
     readonly property var locale: Qt.locale(conf("locale", "ru_RU"))
 
     readonly property int gap: Number(conf("gap", 12))
@@ -333,9 +335,13 @@ Item {
                     visible: shown
                     source: "Avatar3D.qml"
                     onLoaded: {
-                        item.model = Qt.binding(() => root.avatarModel)
+                        // .qml — сцена от balsam, с анимациями; иначе сам файл модели
+                        item.model = Qt.binding(() => root.avatarModel.toString().endsWith(".qml") ? "" : root.avatarModel)
+                        item.scene = Qt.binding(() => root.avatarModel.toString().endsWith(".qml") ? root.avatarModel : "")
                         item.modelSize = Qt.binding(() => root.modelSize)
                         item.spinMs = Qt.binding(() => root.spinMs)
+                        item.animation = Qt.binding(() => root.avatarAnimation)
+                        item.animationSpeed = Qt.binding(() => root.animationSpeed)
                     }
                     onStatusChanged: {
                         if (status === Loader.Error)

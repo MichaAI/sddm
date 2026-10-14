@@ -14,7 +14,7 @@
   3D-модель задаётся в `theme.conf`.
 
 Нужны SDDM ≥ 0.21 с грейтером на Qt 6 и шрифт JetBrainsMono Nerd Font.
-Для 3D-авы — QtQuick3D.
+Для 3D-авы — QtQuick3D, для анимаций в ней ещё QtQuick.Timeline.
 
 ## Установка
 
@@ -29,7 +29,23 @@ Current=bento
 ```
 
 На NixOS: `services.displayManager.sddm.theme` — путь к папке темы,
-а `qt6.qtquick3d` — в `extraPackages`, если нужна 3D-ава.
+а `qt6.qtquick3d` (и `qt6.qtquicktimeline` для анимаций) — в `extraPackages`,
+если нужна 3D-ава.
+
+## 3D-ава с анимацией
+
+RuntimeLoader из QtQuick3D анимации не проигрывает, поэтому модель
+один раз прогоняется через balsam:
+
+```sh
+tools/convert-avatar.sh Fox.glb avatar
+# avatar/Fox.qml
+# Анимации: Survey Walk Run
+```
+
+В `theme.conf`: `avatarModel=avatar/Fox.qml`, `avatarAnimation=Run`.
+Папку с результатом держи там, где её прочитает пользователь sddm,
+например в папке темы.
 
 ## Проверка без выхода из сессии
 
