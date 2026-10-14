@@ -72,7 +72,12 @@ in
       # Тема на Qt 6
       package = lib.mkDefault pkgs.kdePackages.sddm;
       theme = "bento";
-      extraPackages = lib.optionals (cfg.avatar != null || cfg.settings ? avatarModel) [
+      # Плагины картинок — для обоев в webp, avif и т.п.; QtQuick3D и
+      # Timeline — только для 3D-авы
+      extraPackages = [
+        pkgs.kdePackages.qtimageformats
+      ]
+      ++ lib.optionals (cfg.avatar != null || cfg.settings ? avatarModel) [
         pkgs.kdePackages.qtquick3d
         pkgs.kdePackages.qtquicktimeline
       ];
