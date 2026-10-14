@@ -9,8 +9,9 @@ src=$1
 out=${2:-avatar}
 
 # --manualAnimations: таймлайны без своих TimelineAnimation — какую
-# анимацию играть, решает тема (avatarAnimation)
-if ! log=$(QT_QPA_PLATFORM=offscreen balsam --manualAnimations -o "$out" "$src" 2>&1); then
+# анимацию играть, решает тема (avatarAnimation). Ключевые кадры — прямо
+# в QML: двоичные .qad читает не всякий QtQuick.Timeline
+if ! log=$(QT_QPA_PLATFORM=offscreen balsam --manualAnimations --disable-useBinaryKeyframes -o "$out" "$src" 2>&1); then
     echo "$log" >&2
     exit 1
 fi

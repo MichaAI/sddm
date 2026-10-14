@@ -71,10 +71,12 @@ stdenvNoCC.mkDerivation {
     cp -r . $dir
   ''
   + lib.optionalString (avatar != null) ''
+    # Ключевые кадры — прямо в QML: двоичные .qad, сделанные в
+    # песочнице, Timeline потом не читает
     cp ${avatar} avatar.${ext}
     HOME=$TMPDIR QT_QPA_PLATFORM=offscreen \
       QT_PLUGIN_PATH=${qtquick3d}/${qtbase.qtPluginPrefix} \
-      balsam --manualAnimations -o $dir/avatar avatar.${ext}
+      balsam --manualAnimations --disable-useBinaryKeyframes -o $dir/avatar avatar.${ext}
     test -f $dir/avatar/Avatar.qml
   ''
   + lib.optionalString (conf != { }) ''
