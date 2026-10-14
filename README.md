@@ -18,6 +18,35 @@
 
 ## Установка
 
+### NixOS
+
+```nix
+# flake.nix
+inputs.sddm-bento = {
+  url = "github:MichaAI/sddm";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+
+# configuration.nix
+imports = [ inputs.sddm-bento.nixosModules.default ];
+
+michaai.sddm = {
+  enable = true;
+  avatar = ./Fox.glb;               # balsam сделает сцену при сборке
+  settings = {
+    avatarAnimation = "Run";
+    background = ./wall.png;
+  };
+};
+```
+
+Модуль включает SDDM на Qt 6, ставит тему и JetBrainsMono Nerd Font, а
+если есть 3D-ава — даёт грейтеру QtQuick3D и QtQuick.Timeline. `settings` —
+любые ключи `theme.conf`, они ложатся в `theme.conf.user`. Без модуля —
+`packages.default.override { settings = …; avatar = …; }`.
+
+### Вручную
+
 ```sh
 sudo cp -r . /usr/share/sddm/themes/bento
 ```
@@ -28,14 +57,10 @@ sudo cp -r . /usr/share/sddm/themes/bento
 Current=bento
 ```
 
-На NixOS: `services.displayManager.sddm.theme` — путь к папке темы,
-а `qt6.qtquick3d` (и `qt6.qtquicktimeline` для анимаций) — в `extraPackages`,
-если нужна 3D-ава.
-
 ## 3D-ава с анимацией
 
 RuntimeLoader из QtQuick3D анимации не проигрывает, поэтому модель
-один раз прогоняется через balsam:
+один раз прогоняется через balsam (на NixOS это делает модуль):
 
 ```sh
 tools/convert-avatar.sh Fox.glb avatar
