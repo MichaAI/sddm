@@ -229,9 +229,9 @@ Item {
     // Сверху лёгкое зерно
     Rectangle {
         anchors.fill: parent
-        gradient: Gradient {
-            GradientStop { position: 0; color: Theme.base }
-            GradientStop { position: 1; color: Theme.crust }
+        gradient: OkGradient {
+            from: Theme.base
+            to: Theme.crust
         }
     }
 
