@@ -114,6 +114,11 @@ Item {
         sessionIndex = cycle(sessions.count, sessionIndex, d)
         input.forceActiveFocus()
     }
+    function switchLayout() {
+        const n = keyboard.layouts.length
+        if (n > 1)
+            keyboard.currentLayout = (keyboard.currentLayout + 1) % n
+    }
 
     function submit() {
         if (busy || userName === "")
@@ -291,11 +296,28 @@ Item {
         Keys.onReturnPressed: root.submit()
         Keys.onEnterPressed: root.submit()
         Keys.onEscapePressed: text = ""
+        // Всё, что есть на плитках, доступно и с клавиатуры: у грейтера
+        // иногда отваливается мышь
         Keys.onPressed: event => {
             if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
                 root.switchUser(event.key === Qt.Key_Tab ? 1 : -1)
                 event.accepted = true
                 return
+            }
+            if (event.key === Qt.Key_Up || event.key === Qt.Key_Down) {
+                root.switchSession(event.key === Qt.Key_Down ? 1 : -1)
+                event.accepted = true
+                return
+            }
+            if (event.key === Qt.Key_Space && (event.modifiers & Qt.ControlModifier)) {
+                root.switchLayout()
+                event.accepted = true
+                return
+            }
+            switch (event.key) {
+            case Qt.Key_F1: if (sddm.canSuspend) sddm.suspend(); event.accepted = true; return
+            case Qt.Key_F2: if (sddm.canReboot) sddm.reboot(); event.accepted = true; return
+            case Qt.Key_F3: if (sddm.canPowerOff) sddm.powerOff(); event.accepted = true; return
             }
             root.noteKey(event)
             event.accepted = false      // сам текст пусть вводит TextInput
@@ -402,7 +424,7 @@ Item {
                 }
                 Spring { id: faceSpring; target: face; property: "scale"; to: 1; epsilon: 0.002 }
 
-                // Хост — слева сверху, питание — справа сверху
+                // Хост — слева сверху, питание — справа сверху (F1 / F2 / F3)
                 Text {
                     anchors.left: parent.left
                     anchors.top: parent.top
@@ -606,11 +628,7 @@ Item {
                     readonly property var layout: keyboard.layouts[keyboard.currentLayout]
                     text: "󰌌  " + (layout?.shortName?.toUpperCase() || "—")
                     fg: Theme.lavender
-                    onClicked: {
-                        const n = keyboard.layouts.length
-                        if (n > 1)
-                            keyboard.currentLayout = (keyboard.currentLayout + 1) % n
-                    }
+                    onClicked: root.switchLayout()
 
                     property real kick: 0
                     transform: Translate { y: -langBadge.kick }

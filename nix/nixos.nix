@@ -72,6 +72,8 @@ in
       # Тема на Qt 6
       package = lib.mkDefault pkgs.kdePackages.sddm;
       theme = "bento";
+      # weston --shell=kiosk через раз оставляет грейтер без мыши
+      wayland.compositor = lib.mkDefault "kwin";
       # Плагины картинок — для обоев в webp, avif и т.п.; QtQuick3D и
       # Timeline — только для 3D-авы
       extraPackages = [
@@ -81,6 +83,31 @@ in
         pkgs.kdePackages.qtquick3d
         pkgs.kdePackages.qtquicktimeline
       ];
+      # weston брал раскладки из своего weston.ini, kwin его не читает —
+      # отдаём их через XKB_DEFAULT_*. Флаги kwin — как в модуле nixpkgs
+      wayland.compositorCommand =
+        let
+          xkb = config.services.xserver.xkb;
+          env = lib.filterAttrs (_: v: v != "") {
+            XKB_DEFAULT_MODEL = xkb.model;
+            XKB_DEFAULT_LAYOUT = xkb.layout;
+            XKB_DEFAULT_VARIANT = xkb.variant;
+            XKB_DEFAULT_OPTIONS = xkb.options;
+          };
+        in
+        lib.mkIf (config.services.displayManager.sddm.wayland.compositor == "kwin") (
+          lib.concatStringsSep " " (
+            [ "env" ]
+            ++ lib.mapAttrsToList (k: v: "${k}=${v}") env
+            ++ [
+              "${lib.getBin pkgs.kdePackages.kwin}/bin/kwin_wayland"
+              "--no-global-shortcuts"
+              "--no-kactivities"
+              "--no-lockscreen"
+              "--locale1"
+            ]
+          )
+        );
     };
 
     environment.systemPackages = [ cfg.package ];
