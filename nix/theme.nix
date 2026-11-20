@@ -23,6 +23,8 @@ let
           ../flake.lock
           ../nix
           ../tools
+          ../tests
+          ../.git
           ../README.md
         ]
       )

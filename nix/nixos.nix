@@ -110,6 +110,11 @@ in
         );
     };
 
+    # The handoff contains only public visual state (frame and geometry).
+    systemd.services.display-manager.environment = lib.mkIf (cfg.settings ? bootFrames) {
+      QML_XHR_ALLOW_FILE_READ = "1";
+    };
+
     environment.systemPackages = [ cfg.package ];
     fonts.packages = lib.optional cfg.font pkgs.nerd-fonts.jetbrains-mono;
   };

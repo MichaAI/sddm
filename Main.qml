@@ -353,8 +353,8 @@ Item {
                     id: model3d
                     anchors.fill: parent
                     readonly property bool shown: status === Loader.Ready && item.ready
-                    active: root.avatarModel !== ""
-                    visible: shown
+                    active: root.avatarModel !== "" && !bootHandoff.hasState
+                    visible: shown && !bootHandoff.hasState
                     source: "Avatar3D.qml"
                     onLoaded: {
                         // .qml — сцена от balsam, с анимациями; иначе сам файл модели
@@ -378,7 +378,7 @@ Item {
                     width: 160; height: 160
                     radius: 80
                     color: Theme.surface0
-                    visible: !model3d.shown
+                    visible: !model3d.shown && !bootHandoff.hasState
 
                     Image {
                         id: faceImg
@@ -770,5 +770,17 @@ Item {
                 }
             }
         }
+    }
+
+    BootHandoff {
+        id: bootHandoff
+        anchors.fill: parent
+        avatar: model3d
+        modelSize: root.modelSize
+        frames: root.path(root.conf("bootFrames", ""))
+        frameCount: Number(root.conf("bootFrameCount", 0))
+        fps: Number(root.conf("bootFps", 30))
+        modelRatio: Number(root.conf("bootModelRatio", 0.875))
+        base: root.conf("bootBase", "#11111b")
     }
 }
